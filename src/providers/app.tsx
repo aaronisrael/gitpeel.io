@@ -3,6 +3,13 @@ import { QueryClient, QueryClientProvider } from 'react-query';
 import { ErrorBoundary } from 'react-error-boundary';
 import { ReactQueryDevtools } from 'react-query/devtools';
 import { BrowserRouter as Router } from 'react-router-dom';
+import theme from '@/config/theme';
+
+import '@fontsource/inter/300.css';
+import '@fontsource/inter/400.css';
+import '@fontsource/inter/500.css';
+import '@fontsource/inter/700.css';
+import '@fontsource/inter/900.css';
 
 const ErrorFallback = () => {
   return (
@@ -21,7 +28,7 @@ function Providers({ children }: AppProviderProps) {
   const queryClient = new QueryClient();
   return (
     <ErrorBoundary FallbackComponent={ErrorFallback}>
-      <ChakraProvider>
+      <ChakraProvider theme={theme}>
         <QueryClientProvider client={queryClient}>
           {!import.meta.env.PROD && <ReactQueryDevtools />}
           <Router>{children}</Router>
