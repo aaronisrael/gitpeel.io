@@ -1,5 +1,5 @@
 import { octokit } from '@/lib/octokit';
-import { VStack, Text, LinkBox, Box, HStack, Divider } from '@chakra-ui/react';
+import { VStack, Text, LinkBox, Box, HStack, Divider, useToast } from '@chakra-ui/react';
 import { useQuery } from 'react-query';
 import { formatDistanceToNow } from 'date-fns';
 import { Link } from 'react-router-dom';
@@ -8,12 +8,26 @@ interface Props {
   userName: string;
 }
 const Repos = ({ userName }: Props) => {
-  const { data, isLoading, isError } = useQuery(['user', userName], async () => {
-    const { data } = await octokit.request('GET /users/{username}/repos', {
-      username: userName as string,
-    });
-    return data;
-  });
+  const toast = useToast();
+  const { data, isLoading, isError } = useQuery(
+    ['user', userName],
+    async () => {
+      const { data } = await octokit.request('GET /users/{username}/repos', {
+        username: userName as string,
+      });
+      return data;
+    },
+    {
+      onError: (err: { message: string }) =>
+        toast({
+          title: 'An error occurred',
+          description: err.message,
+          status: 'error',
+          duration: 9000,
+          isClosable: true,
+        }),
+    }
+  );
 
   const sortOnDate = (a: string, b: string) => {
     return new Date(b).getTime() - new Date(a).getTime();

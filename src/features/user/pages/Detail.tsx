@@ -8,6 +8,7 @@ import {
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbLink,
+  useToast,
 } from '@chakra-ui/react';
 import { useQuery } from 'react-query';
 import { Link, useParams } from 'react-router-dom';
@@ -15,12 +16,26 @@ import Repos from '@/features/user/components/Repos';
 
 const Detail = () => {
   const { userName } = useParams<{ userName: string }>();
-  const { data, isLoading, isError } = useQuery(['repos', userName], async () => {
-    const { data } = await octokit.request('GET /users/{username}', {
-      username: userName as string,
-    });
-    return data;
-  });
+  const toast = useToast();
+  const { data, isLoading, isError } = useQuery(
+    ['repos', userName],
+    async () => {
+      const { data } = await octokit.request('GET /users/{username}', {
+        username: userName as string,
+      });
+      return data;
+    },
+    {
+      onError: (err: { message: string }) =>
+        toast({
+          title: 'An error occurred',
+          description: err.message,
+          status: 'error',
+          duration: 9000,
+          isClosable: true,
+        }),
+    }
+  );
 
   if (isLoading) return null;
   if (isError) return null;

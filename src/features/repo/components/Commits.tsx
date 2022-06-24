@@ -1,5 +1,5 @@
 import { octokit } from '@/lib/octokit';
-import { Text, HStack, List, ListItem, Button } from '@chakra-ui/react';
+import { Text, HStack, List, ListItem, useToast } from '@chakra-ui/react';
 import { useInfiniteQuery } from 'react-query';
 import { formatDistanceToNow } from 'date-fns';
 import { Fragment, useEffect } from 'react';
@@ -10,6 +10,7 @@ interface Props {
   isBottom: boolean;
 }
 const Commits = ({ userName, repo, isBottom }: Props) => {
+  const toast = useToast();
   const { data, isLoading, isError, fetchNextPage } = useInfiniteQuery(
     ['commits', repo, userName],
     async ({ pageParam = 1 }) => {
@@ -20,9 +21,16 @@ const Commits = ({ userName, repo, isBottom }: Props) => {
       });
       return data;
     },
-
     {
       getNextPageParam: (lastPage, pages) => pages.length,
+      onError: (err: { message: string }) =>
+        toast({
+          title: 'An error occurred',
+          description: err.message,
+          status: 'error',
+          duration: 9000,
+          isClosable: true,
+        }),
     }
   );
 
@@ -34,41 +42,38 @@ const Commits = ({ userName, repo, isBottom }: Props) => {
   if (isError) return null;
 
   return (
-    <>
-      <Button></Button>
-      <List as="ul" w="100%" pt="4" spacing="1">
-        {data?.pages?.map((group, i) => (
-          <Fragment key={i}>
-            {group?.map(({ sha, commit }) => (
-              <ListItem
-                key={sha}
-                w="100%"
-                p="4"
-                boxShadow="sm"
-                border="1px solid"
-                borderColor="gray.300"
-                borderRadius="md"
-              >
-                <Text fontWeight="700" color="primary">
-                  {commit.message}
+    <List as="ul" w="100%" pt="4" spacing="1">
+      {data?.pages?.map((group, i) => (
+        <Fragment key={i}>
+          {group?.map(({ sha, commit }) => (
+            <ListItem
+              key={sha}
+              w="100%"
+              p="4"
+              boxShadow="sm"
+              border="1px solid"
+              borderColor="gray.300"
+              borderRadius="md"
+            >
+              <Text fontWeight="700" color="primary">
+                {commit.message}
+              </Text>
+              <HStack>
+                <Text fontWeight="700" fontSize="xs">
+                  {commit.author?.name}
                 </Text>
-                <HStack>
-                  <Text fontWeight="700" fontSize="xs">
-                    {commit.author?.name}
+                {commit.author?.date && (
+                  <Text fontSize="xs">
+                    commited{' '}
+                    {formatDistanceToNow(new Date(commit.author.date), { addSuffix: true })}
                   </Text>
-                  {commit.author?.date && (
-                    <Text fontSize="xs">
-                      commited{' '}
-                      {formatDistanceToNow(new Date(commit.author.date), { addSuffix: true })}
-                    </Text>
-                  )}
-                </HStack>
-              </ListItem>
-            ))}
-          </Fragment>
-        ))}
-      </List>
-    </>
+                )}
+              </HStack>
+            </ListItem>
+          ))}
+        </Fragment>
+      ))}
+    </List>
   );
 };
 
