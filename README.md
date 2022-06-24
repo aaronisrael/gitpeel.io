@@ -2,6 +2,8 @@
 
 An app that connects to the Github API and displays all of a user's public repositories, and the latest commits for the repositories.
 
+Check out the [Demo](https://gitpeel-io.vercel.app/)
+
 ## Introduction
 
 1. Connects to the Github REST-Api
