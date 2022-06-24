@@ -22,14 +22,14 @@ const LandingPage = () => {
   };
 
   const handleOnSelect = (item: SearchItem) => {
-    navigate(`/${item.id}`);
+    navigate(`/${item.login}`);
   };
 
   const formatResult = (item: SearchItem) => {
     return (
       <>
         {/* Link doesn't work here bc the autocomplete uses prevent default */}
-        <HStack as={Link} to={`/${item.id}`} _hover={{ cursor: 'pointer' }}>
+        <HStack as={Link} to={`/${item.login}`} _hover={{ cursor: 'pointer' }}>
           <Avatar src={item.avatar_url} size="sm" />
           <Text>{item.login}</Text>
         </HStack>

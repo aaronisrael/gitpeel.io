@@ -1,5 +1,6 @@
 import LandingPage from '@/features/landing/pages/LandingPage';
-import Detail from '@/features/user/pages/Detail';
+import UserDetail from '@/features/user/pages/Detail';
+import RepoDetail from '@/features/repo/pages/Detail';
 
 export const publicRoutes = [
   {
@@ -7,7 +8,11 @@ export const publicRoutes = [
     element: <LandingPage />,
   },
   {
-    path: '/:userId',
-    element: <Detail />,
+    path: '/:userName',
+    element: <UserDetail />,
+  },
+  {
+    path: '/:userName/:repo',
+    element: <RepoDetail />,
   },
 ];

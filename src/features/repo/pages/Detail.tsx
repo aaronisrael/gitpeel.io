@@ -1,6 +1,5 @@
 import { octokit } from '@/lib/octokit';
 import {
-  Avatar,
   VStack,
   Text,
   Divider,
@@ -11,13 +10,16 @@ import {
 } from '@chakra-ui/react';
 import { useQuery } from 'react-query';
 import { Link, useParams } from 'react-router-dom';
-import Repos from '@/features/user/components/Repos';
+import Commits from '../components/Commits';
+import { useIsScrolledToBottom } from '../hooks/useIsScrolledToBottom';
 
 const Detail = () => {
-  const { userName } = useParams<{ userName: string }>();
-  const { data, isLoading, isError } = useQuery(['repos', userName], async () => {
-    const { data } = await octokit.request('GET /users/{username}', {
-      username: userName as string,
+  const [setBottomRef, isBottom] = useIsScrolledToBottom();
+  const { userName, repo } = useParams<{ userName: string; repo: string }>();
+  const { data, isLoading, isError } = useQuery(['repo', repo], async () => {
+    const { data } = await octokit.request('GET /repos/{owner}/{repo}', {
+      owner: userName as string,
+      repo: repo as string,
     });
     return data;
   });
@@ -26,26 +28,30 @@ const Detail = () => {
   if (isError) return null;
 
   return (
-    <VStack p="6" spacing="1">
-      <Avatar src={data?.avatar_url} name={userName} size="2xl" />
+    <VStack p="6" spacing="1" overflow="auto" height="100vh">
       <Text fontWeight="900" fontSize="3xl" color="primary">
         {data?.name}
       </Text>
-      {data?.bio && <Text color="gray.600">{data?.bio}</Text>}
       <Breadcrumb>
         <BreadcrumbItem>
           <BreadcrumbLink as={Link} to="/">
             Search
           </BreadcrumbLink>
         </BreadcrumbItem>
+        <BreadcrumbItem>
+          <BreadcrumbLink as={Link} to={`/${userName}`}>
+            {userName}
+          </BreadcrumbLink>
+        </BreadcrumbItem>
         <BreadcrumbItem isCurrentPage>
-          <BreadcrumbLink>{userName}</BreadcrumbLink>
+          <BreadcrumbLink>{repo}</BreadcrumbLink>
         </BreadcrumbItem>
       </Breadcrumb>
       <Box width="100%">
         <Divider mt="4" color="primary" opacity="1" />
       </Box>
-      <Repos userName={userName as string} />
+      <Commits userName={userName as string} repo={repo as string} isBottom={isBottom} />
+      <div ref={setBottomRef} />
     </VStack>
   );
 };
